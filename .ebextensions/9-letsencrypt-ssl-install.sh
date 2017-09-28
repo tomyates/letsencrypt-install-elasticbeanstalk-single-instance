@@ -12,7 +12,9 @@ if [ "$LE_INSTALL_SSL_ON_DEPLOY" = true ] ; then
 
     # Install json query and get document root
     sudo yum -y install jq
-    $DOCUMENT_ROOT=(sudo /opt/elasticbeanstalk/bin/get-config optionsettings | jq '."aws:elasticbeanstalk:container:php:phpini"."document_root"' -r)
+
+    # Assign value to DOCUMENT_ROOT
+    DOCUMENT_ROOT=`sudo /opt/elasticbeanstalk/bin/get-config optionsettings | jq '."aws:elasticbeanstalk:container:php:phpini"."document_root"' -r`
 
 
     # Install certbot
@@ -21,7 +23,7 @@ if [ "$LE_INSTALL_SSL_ON_DEPLOY" = true ] ; then
     wget https://dl.eff.org/certbot-auto;chmod a+x certbot-auto
 
     # Create certificate
-    sudo ./certbot-auto certonly -d $LE_SSL_DOMAIN --agree-tos --email $LE_EMAIL --webroot --webroot-path /var/app/current/$DOCUMENT_ROOT --debug --non-interactive --renew-by-default
+    sudo ./certbot-auto certonly -d $LE_SSL_DOMAIN --agree-tos --email $LE_EMAIL --webroot --webroot-path /var/app/current$DOCUMENT_ROOT --debug --non-interactive --renew-by-default
 
     # Configure ssl.conf
     sudo mv /etc/httpd/conf.d/ssl.conf.template /etc/httpd/conf.d/ssl.conf
