@@ -18,3 +18,13 @@
 - Install weekly cron to auto-update certificate
 
 5. After deploying, you can change the environment variable `LE_INSTALL_SSL_ON_DEPLOY` to `false` to prevent script running every deployment which will slow deployment down.
+
+
+## Get files from command line
+
+
+```
+wget https://raw.githubusercontent.com/tomyates/letsencrypt-install-elasticbeanstalk-single-instance/master/.ebextensions/9-ssl-letsencrypt-single-instance.config
+wget https://raw.githubusercontent.com/tomyates/letsencrypt-install-elasticbeanstalk-single-instance/master/.ebextensions/9-letsencrypt-ssl-install.sh
+wget https://raw.githubusercontent.com/tomyates/letsencrypt-install-elasticbeanstalk-single-instance/master/.ebextensions/ssl.conf.template
+```
