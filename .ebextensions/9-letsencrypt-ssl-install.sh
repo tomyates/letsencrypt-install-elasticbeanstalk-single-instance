@@ -8,7 +8,12 @@
 if [ "$LE_INSTALL_SSL_ON_DEPLOY" = true ] ; then
 
     # Install mod_ssl
-    yum -y install mod24_ssl
+    sudo yum -y install mod24_ssl
+
+    # Install json query and get document root
+    sudo yum -y install jq
+    $DOCUMENT_ROOT=(sudo /opt/elasticbeanstalk/bin/get-config optionsettings | jq '."aws:elasticbeanstalk:container:php:phpini"."document_root"' -r)
+
 
     # Install certbot
     sudo mkdir /certbot
