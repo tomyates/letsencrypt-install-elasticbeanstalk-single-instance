@@ -1,4 +1,9 @@
 LoadModule ssl_module modules/mod_ssl.so
+
+#Enable HTTP/2 for better performance
+#LoadModule http2_module modules/mod_http2.so
+#Unfortunately not available yet https://forums.aws.amazon.com/thread.jspa?threadID=237434
+
 Listen 443
 <VirtualHost *:443>
   <Proxy *>
