@@ -5,7 +5,9 @@
 # Loadvars
 . /opt/elasticbeanstalk/support/envvars
 
-if [ "$LE_INSTALL_SSL_ON_DEPLOY" = true ] ; then
+# Install if no SSL certificate installed or SSL install on deploy is true
+
+if [[ ("$LE_INSTALL_SSL_ON_DEPLOY" = true) || (! -f /etc/httpd/conf.d/ssl.conf) ]] ; then
 
     # Install mod_ssl
     sudo yum -y install mod24_ssl
