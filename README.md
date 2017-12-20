@@ -12,6 +12,8 @@
 4. EB Deploy. The script will:
 - Check to see if /etc/httpd/conf.d/ssl.conf exists already and if not, attempts to install certificate
 - Allow incoming traffic on port 443
+- Allow pinging to the server
+- Wait until new ec2 instance domain name resolves - important in the case of a server being replaced or type changed.
 - Install certbot
 - Setup and download a certificate from letsencrypt
 - Configure the Apache server with new certificate
