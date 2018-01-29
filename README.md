@@ -10,6 +10,8 @@
 3. Either change the values of environment variables in the config file, or add them to the container option from the console.
 
 4. EB Deploy. The script will:
+- If SSL certificate already installed does nothing.
+- Checks to see if the SSL certificate already exists on the S3 bucket used for storing applicatons. If it does, it downloads and installs from S3.
 - Check to see if /etc/httpd/conf.d/ssl.conf exists already and if not, attempts to install certificate
 - Allow incoming traffic on port 443
 - Allow pinging to the server
@@ -19,6 +21,7 @@
 - Configure the Apache server with new certificate
 - Restart Apache
 - Install weekly cron to auto-update certificate
+- Install weekly cron to copy updated certificate to S3
 
 5. After setup, you may force install the SSL certificate again by changing `LE_INSTALL_SSL_ON_DEPLOY` to `true`.
 
@@ -30,4 +33,5 @@
 wget https://raw.githubusercontent.com/tomyates/letsencrypt-install-elasticbeanstalk-single-instance/master/.ebextensions/9-ssl-letsencrypt-single-instance.config
 wget https://raw.githubusercontent.com/tomyates/letsencrypt-install-elasticbeanstalk-single-instance/master/.ebextensions/9-letsencrypt-ssl-install.sh
 wget https://raw.githubusercontent.com/tomyates/letsencrypt-install-elasticbeanstalk-single-instance/master/.ebextensions/ssl.conf.template
+wget https://raw.githubusercontent.com/tomyates/letsencrypt-install-elasticbeanstalk-single-instance/master/.ebextensions/9-post-renew-cp-s3.sh
 ```

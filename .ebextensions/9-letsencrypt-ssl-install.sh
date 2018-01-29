@@ -5,6 +5,40 @@ set -e
 # Loadvars
 . /opt/elasticbeanstalk/support/envvars
 
+# Check if there is certificate on S3 that we can use
+
+ACCOUNT_ID=$(aws sts get-caller-identity --output text --query 'Account')
+REGION=$(curl http://169.254.169.254/latest/dynamic/instance-identity/document|grep region|awk -F\" '{print $4}')
+
+echo $ACCOUNT_ID
+echo $REGION
+echo "bonjour"
+
+URL="s3://elasticbeanstalk-$REGION-$ACCOUNT_ID/ssl/$LE_SSL_DOMAIN/ssl.conf"
+
+count=$(aws s3 ls $URL | wc -l)
+if [ $count -gt 0 ]
+then
+  echo "SSL Already Exists on S3"
+ # Copy from S3 bucket
+
+    if [ ! -f /etc/httpd/conf.d/ssl.conf ] ; then
+
+	echo "copying from bucket"
+        aws s3 cp s3://elasticbeanstalk-$REGION-$ACCOUNT_ID/ssl/$LE_SSL_DOMAIN/ssl.conf /etc/httpd/conf.d/ssl.conf
+        aws s3 cp s3://elasticbeanstalk-$REGION-$ACCOUNT_ID/ssl/$LE_SSL_DOMAIN/cert.pem /etc/letsencrypt/live/$LE_SSL_DOMAIN/cert.pem
+        aws s3 cp s3://elasticbeanstalk-$REGION-$ACCOUNT_ID/ssl/$LE_SSL_DOMAIN/privkey.pem /etc/letsencrypt/live/$LE_SSL_DOMAIN/privkey.pem
+        aws s3 cp s3://elasticbeanstalk-$REGION-$ACCOUNT_ID/ssl/$LE_SSL_DOMAIN/fullchain.pem /etc/letsencrypt/live/$LE_SSL_DOMAIN/fullchain.pem
+
+        # restart
+        sudo service httpd restart
+
+    fi
+
+else
+  echo "does not exist on s3"
+fi
+
 # Install if no SSL certificate installed or SSL install on deploy is true
 
 if [[ ("$LE_INSTALL_SSL_ON_DEPLOY" = true) || (! -f /etc/httpd/conf.d/ssl.conf) ]] ; then
@@ -52,3 +86,12 @@ if [[ ("$LE_INSTALL_SSL_ON_DEPLOY" = true) || (! -f /etc/httpd/conf.d/ssl.conf) 
     sudo service httpd restart
 
 fi
+
+echo 'copying certificate'
+
+# Copy cert to S3 regardless of outcome
+
+aws s3 cp /etc/httpd/conf.d/ssl.conf s3://elasticbeanstalk-$REGION-$ACCOUNT_ID/ssl/$LE_SSL_DOMAIN/ssl.conf
+aws s3 cp /etc/letsencrypt/live/$LE_SSL_DOMAIN/cert.pem s3://elasticbeanstalk-$REGION-$ACCOUNT_ID/ssl/$LE_SSL_DOMAIN/cert.pem
+aws s3 cp /etc/letsencrypt/live/$LE_SSL_DOMAIN/privkey.pem s3://elasticbeanstalk-$REGION-$ACCOUNT_ID/ssl/$LE_SSL_DOMAIN/privkey.pem
+aws s3 cp /etc/letsencrypt/live/$LE_SSL_DOMAIN/fullchain.pem s3://elasticbeanstalk-$REGION-$ACCOUNT_ID/ssl/$LE_SSL_DOMAIN/fullchain.pem
